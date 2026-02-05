@@ -1,0 +1,100 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: ozon-assistant-api
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run type check
+        working-directory: ./server
+        run: npm run build
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          # Copy files to server
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.env' \
+            ./ $SERVER_USER@$SERVER_IP:/opt/ozon-assistant/
+
+          # Execute deploy script on server
+          ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+            cd /opt/ozon-assistant
+
+            # Create .env file
+            cat > .env << EOF
+          POSTGRES_USER=ozon
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=ozon_assistant
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          PRICE_MULTIPLIER=3
+          WELCOME_BONUS=1
+          EOF
+
+            # Build and restart containers
+            docker compose down
+            docker compose build --no-cache
+            docker compose up -d
+
+            # Run migrations
+            docker compose exec -T api npx prisma migrate deploy
+
+            # Check health
+            sleep 10
+            curl -f http://localhost:3000/health || exit 1
+
+            echo "✅ Deployment successful!"
+          ENDSSH
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ Deployment failed!"

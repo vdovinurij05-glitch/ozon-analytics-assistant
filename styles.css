@@ -1,0 +1,334 @@
+/* Ozon Analytics Assistant - Стили */
+/* Разработчик: @first_seller */
+
+#ozon-assistant-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    z-index: 2147483647;
+}
+
+/* Плавающая кнопка */
+#ozon-assistant-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #005bff 0%, #0047cc 100%);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 91, 255, 0.4);
+    transition: all 0.3s ease;
+    z-index: 2147483647;
+}
+
+#ozon-assistant-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 91, 255, 0.5);
+}
+
+#ozon-assistant-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+}
+
+#ozon-assistant-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Панель чата */
+#ozon-assistant-panel {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 420px;
+    height: 550px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s ease;
+    z-index: 2147483646;
+    overflow: hidden;
+}
+
+#ozon-assistant-panel.expanded {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* Заголовок панели */
+#ozon-assistant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #005bff 0%, #0047cc 100%);
+    color: white;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-title {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.header-mode {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#ozon-assistant-balance {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+#ozon-assistant-balance.low-balance {
+    background: #ff4444;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+#ozon-assistant-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+#ozon-assistant-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Область чата */
+#ozon-assistant-chat {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#ozon-assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Сообщения */
+.user-message,
+.assistant-message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #005bff;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message {
+    align-self: flex-start;
+    background: #f0f2f5;
+    color: #1a1a1a;
+    border-bottom-left-radius: 4px;
+}
+
+.assistant-message.loading {
+    color: #666;
+    font-style: italic;
+}
+
+.assistant-message strong {
+    font-weight: 600;
+    color: #005bff;
+}
+
+.assistant-message a {
+    color: #005bff;
+    text-decoration: none;
+}
+
+.assistant-message a:hover {
+    text-decoration: underline;
+}
+
+.assistant-message small {
+    display: block;
+    margin-top: 8px;
+    color: #888;
+    font-size: 12px;
+}
+
+/* Область ввода */
+#ozon-assistant-input-area {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e8e8e8;
+    background: #fafafa;
+}
+
+#ozon-assistant-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    max-height: 100px;
+    transition: border-color 0.2s;
+}
+
+#ozon-assistant-input:focus {
+    border-color: #005bff;
+}
+
+#ozon-assistant-input::placeholder {
+    color: #999;
+}
+
+#ozon-assistant-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #005bff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+#ozon-assistant-send:hover:not(:disabled) {
+    background: #0047cc;
+    transform: scale(1.05);
+}
+
+#ozon-assistant-send:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+#ozon-assistant-send svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Футер */
+#ozon-assistant-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border-top: 1px solid #e8e8e8;
+    font-size: 11px;
+    color: #888;
+}
+
+#ozon-assistant-clear {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+#ozon-assistant-clear:hover {
+    background: #e0e0e0;
+}
+
+#ozon-assistant-usage {
+    font-size: 11px;
+    color: #888;
+}
+
+/* Скроллбар */
+#ozon-assistant-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#ozon-assistant-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#ozon-assistant-messages::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+#ozon-assistant-messages::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 480px) {
+    #ozon-assistant-panel {
+        width: calc(100vw - 32px);
+        height: calc(100vh - 100px);
+        bottom: 16px;
+        right: 16px;
+    }
+
+    #ozon-assistant-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+}

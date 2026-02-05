@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Ozon Analytics Assistant",
+  "short_name": "Ozon AI",
+  "version": "1.1.0",
+  "description": "AI-помощник для анализа данных Ozon. Анализируйте продажи, конкурентов и получайте рекомендации. Разработчик: @first_seller",
+  "author": "@first_seller",
+  "homepage_url": "https://t.me/first_seller",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://seller.ozon.ru/*",
+    "https://ozon.ru/*",
+    "https://www.ozon.ru/*",
+    "https://api.ozon-assistant.ru/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://seller.ozon.ru/*",
+        "https://ozon.ru/*",
+        "https://www.ozon.ru/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ozon Analytics Assistant",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
