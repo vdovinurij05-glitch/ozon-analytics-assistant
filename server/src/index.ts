@@ -52,16 +52,17 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Статические файлы для Web App
-app.use('/webapp', express.static(path.join(__dirname, '../../webapp')));
-app.use('/admin', express.static(path.join(__dirname, '../../admin')));
+// В Docker: __dirname = /app/dist, webapp = /app/webapp
+app.use('/webapp', express.static(path.join(__dirname, '../webapp')));
+app.use('/admin', express.static(path.join(__dirname, '../admin')));
 
-// Redirect для webapp
+// Redirect для webapp и admin
 app.get('/webapp', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../webapp/index.html'));
+  res.sendFile(path.join(__dirname, '../webapp/index.html'));
 });
 
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../admin/index.html'));
+  res.sendFile(path.join(__dirname, '../admin/index.html'));
 });
 
 // Error handler
