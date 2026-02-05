@@ -14,7 +14,7 @@
     "https://seller.ozon.ru/*",
     "https://ozon.ru/*",
     "https://www.ozon.ru/*",
-    "https://api.ozon-assistant.ru/*"
+    "http://147.45.50.254:3000/*"
   ],
   "background": {
     "service_worker": "background.js"

@@ -2,9 +2,8 @@
 // Работает с нашим сервером (прокси к Claude API)
 // Разработчик: @first_seller
 
-// URL сервера (изменить на продакшн при деплое)
-const API_BASE_URL = 'http://localhost:3000';
-// const API_BASE_URL = 'https://api.ozon-assistant.ru';
+// URL сервера
+const API_BASE_URL = 'http://147.45.50.254:3000';
 
 // Получаем API ключ из storage
 async function getApiKey() {
