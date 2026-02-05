@@ -110,6 +110,6 @@ export function generateToken(userId: string): string {
   return jwt.sign(
     { userId },
     JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    { expiresIn: '7d' }
   );
 }

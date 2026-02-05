@@ -198,7 +198,7 @@ router.get('/history/:sessionId', apiKeyMiddleware, async (req: AuthRequest, res
       return;
     }
 
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
 
     const session = await prisma.session.findFirst({
       where: {
@@ -213,7 +213,7 @@ router.get('/history/:sessionId', apiKeyMiddleware, async (req: AuthRequest, res
     }
 
     const messages = await prisma.message.findMany({
-      where: { sessionId },
+      where: { sessionId: sessionId },
       orderBy: { createdAt: 'asc' },
       select: {
         id: true,
@@ -245,7 +245,7 @@ router.delete('/session/:sessionId', apiKeyMiddleware, async (req: AuthRequest, 
       return;
     }
 
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
 
     await prisma.session.deleteMany({
       where: {
