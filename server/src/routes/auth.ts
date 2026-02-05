@@ -85,7 +85,7 @@ router.post('/login', async (req, res: Response) => {
       where: { email: data.email }
     });
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       res.status(401).json({ error: 'Неверный email или пароль' });
       return;
     }

@@ -1,6 +1,7 @@
 {
   "name": "ozon-analytics-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend server for Ozon Analytics Assistant",
   "main": "dist/index.js",
   "scripts": {

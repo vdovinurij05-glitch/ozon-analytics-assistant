@@ -57,6 +57,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: |
           # Copy files to server
           rsync -avz --delete \
@@ -76,6 +77,7 @@ jobs:
           POSTGRES_DB=ozon_assistant
           ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          BOT_TOKEN=${{ secrets.BOT_TOKEN }}
           PRICE_MULTIPLIER=3
           WELCOME_BONUS=1
           EOF
@@ -86,7 +88,7 @@ jobs:
             docker compose up -d
 
             # Run migrations
-            docker compose exec -T api npx prisma migrate deploy
+            docker compose exec -T api npx prisma db push --accept-data-loss
 
             # Check health
             sleep 10

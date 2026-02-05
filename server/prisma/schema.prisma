@@ -10,11 +10,16 @@ datasource db {
 // Пользователи системы
 model User {
   id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
+  email        String?  @unique
+  passwordHash String?  @map("password_hash")
+  telegramId   String?  @unique @map("telegram_id")
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  username     String?
   apiKeyHash   String?  @unique @map("api_key_hash")
   balance      Decimal  @default(0) @db.Decimal(10, 4)
   isBlocked    Boolean  @default(false) @map("is_blocked")
+  isAdmin      Boolean  @default(false) @map("is_admin")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

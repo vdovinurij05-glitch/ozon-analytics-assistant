@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ozon Analytics Assistant</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-link-color: #2481cc;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #f0f0f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--tg-theme-hint-color);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color);
+            margin-bottom: 8px;
+        }
+
+        .balance {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--tg-theme-text-color);
+        }
+
+        .balance-usd {
+            font-size: 16px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        .api-key-box {
+            background: var(--tg-theme-bg-color);
+            border: 1px solid var(--tg-theme-hint-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .btn-secondary {
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--tg-theme-bg-color);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        .transactions {
+            margin-top: 8px;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--tg-theme-secondary-bg-color);
+        }
+
+        .transaction:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-desc {
+            font-size: 14px;
+        }
+
+        .transaction-date {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.negative {
+            color: #e53935;
+        }
+
+        .transaction-amount.positive {
+            color: #43a047;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 16px;
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--tg-theme-bg-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .copy-btn {
+            background: var(--tg-theme-button-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            padding: 16px;
+        }
+
+        .footer a {
+            color: var(--tg-theme-link-color);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Загрузка -->
+        <div id="loading" class="loading">
+            <p>Загрузка...</p>
+        </div>
+
+        <!-- Ошибка -->
+        <div id="error" class="error hidden"></div>
+
+        <!-- Регистрация -->
+        <div id="register-section" class="hidden">
+            <div class="header">
+                <h1>👋 Добро пожаловать!</h1>
+                <p>Создайте аккаунт, чтобы начать</p>
+            </div>
+
+            <div class="card">
+                <p style="margin-bottom: 16px;">При регистрации вы получите бонус <strong>$1</strong> на счёт!</p>
+                <button id="register-btn" class="btn btn-primary">Создать аккаунт</button>
+            </div>
+        </div>
+
+        <!-- Главное меню -->
+        <div id="main-section" class="hidden">
+            <div class="header">
+                <h1>Ozon Analytics</h1>
+                <p id="user-email"></p>
+            </div>
+
+            <!-- Табы -->
+            <div class="tabs">
+                <div class="tab active" data-tab="dashboard">Главная</div>
+                <div class="tab" data-tab="apikey">API ключ</div>
+                <div class="tab" data-tab="history">История</div>
+            </div>
+
+            <!-- Дашборд -->
+            <div id="dashboard" class="section active">
+                <div class="card">
+                    <div class="card-title">Баланс</div>
+                    <div class="balance">$<span id="balance">0.00</span></div>
+                </div>
+
+                <button id="topup-btn" class="btn btn-primary">💳 Пополнить баланс</button>
+
+                <div class="card">
+                    <div class="card-title">Статистика</div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-requests">0</div>
+                            <div class="stat-label">Запросов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-tokens">0</div>
+                            <div class="stat-label">Токенов</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API ключ -->
+            <div id="apikey" class="section">
+                <div class="card">
+                    <div class="card-title">Ваш API ключ</div>
+                    <div id="apikey-display" class="api-key-box">
+                        Нажмите кнопку для генерации
+                    </div>
+                    <button id="copy-key-btn" class="copy-btn hidden">📋 Скопировать</button>
+                </div>
+
+                <button id="generate-key-btn" class="btn btn-primary">🔑 Сгенерировать новый ключ</button>
+
+                <div class="card" style="margin-top: 16px;">
+                    <div class="card-title">Как использовать</div>
+                    <ol style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                        <li>Установите Chrome расширение</li>
+                        <li>Скопируйте API ключ выше</li>
+                        <li>Вставьте в настройках расширения</li>
+                        <li>Откройте ozon.ru или seller.ozon.ru</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- История -->
+            <div id="history" class="section">
+                <div class="card">
+                    <div class="card-title">Последние транзакции</div>
+                    <div id="transactions" class="transactions">
+                        <p style="color: var(--tg-theme-hint-color); text-align: center; padding: 20px;">
+                            Нет транзакций
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <div class="footer">
+            <a href="https://t.me/first_seller">@first_seller</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://147.45.50.254:3000';
+        let tg = window.Telegram.WebApp;
+        let userData = null;
+        let authToken = null;
+
+        // Инициализация
+        tg.ready();
+        tg.expand();
+
+        // Применяем тему Telegram
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
+        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
+        document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color || '#2481cc');
+        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#2481cc');
+        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
+        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
+
+        // Элементы
+        const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        const registerSection = document.getElementById('register-section');
+        const mainSection = document.getElementById('main-section');
+
+        // Показать ошибку
+        function showError(message) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+            setTimeout(() => errorEl.classList.add('hidden'), 5000);
+        }
+
+        // API запрос
+        async function apiRequest(endpoint, method = 'GET', body = null, useApiKey = false) {
+            const headers = { 'Content-Type': 'application/json' };
+
+            if (useApiKey && authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : undefined
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Ошибка запроса');
+            return data;
+        }
+
+        // Авторизация через Telegram
+        async function authWithTelegram() {
+            const initData = tg.initData;
+            const user = tg.initDataUnsafe?.user;
+
+            if (!initData || !user) {
+                // Нет Telegram данных - показываем форму регистрации
+                loadingEl.classList.add('hidden');
+                registerSection.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Пробуем авторизоваться через Telegram
+                const response = await apiRequest('/api/auth/telegram', 'POST', {
+                    initData,
+                    telegramId: user.id,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    username: user.username
+                });
+
+                authToken = response.token;
+                userData = response.user;
+
+                showMainSection();
+            } catch (error) {
+                showError(error.message);
+                loadingEl.classList.add('hidden');
+                registerSection.classList.remove('hidden');
+            }
+        }
+
+        // Показать главную секцию
+        function showMainSection() {
+            loadingEl.classList.add('hidden');
+            registerSection.classList.add('hidden');
+            mainSection.classList.remove('hidden');
+
+            document.getElementById('user-email').textContent = userData?.email || `ID: ${userData?.telegramId}`;
+            document.getElementById('balance').textContent = parseFloat(userData?.balance || 0).toFixed(2);
+
+            loadStats();
+            loadTransactions();
+        }
+
+        // Загрузка статистики
+        async function loadStats() {
+            try {
+                const data = await apiRequest('/api/billing/stats', 'GET', null, true);
+                document.getElementById('total-requests').textContent = data.totalRequests || 0;
+                document.getElementById('total-tokens').textContent = formatNumber(data.totalTokens || 0);
+            } catch (e) {
+                console.error('Stats error:', e);
+            }
+        }
+
+        // Загрузка транзакций
+        async function loadTransactions() {
+            try {
+                const data = await apiRequest('/api/billing/usage', 'GET', null, true);
+                const container = document.getElementById('transactions');
+
+                if (!data.transactions || data.transactions.length === 0) {
+                    container.innerHTML = '<p style="color: var(--tg-theme-hint-color); text-align: center; padding: 20px;">Нет транзакций</p>';
+                    return;
+                }
+
+                container.innerHTML = data.transactions.slice(0, 10).map(tx => `
+                    <div class="transaction">
+                        <div>
+                            <div class="transaction-desc">${tx.description || tx.type}</div>
+                            <div class="transaction-date">${new Date(tx.createdAt).toLocaleDateString('ru-RU')}</div>
+                        </div>
+                        <div class="transaction-amount ${parseFloat(tx.amount) >= 0 ? 'positive' : 'negative'}">
+                            ${parseFloat(tx.amount) >= 0 ? '+' : ''}$${Math.abs(parseFloat(tx.amount)).toFixed(4)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Transactions error:', e);
+            }
+        }
+
+        // Форматирование числа
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Табы
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Генерация ключа
+        document.getElementById('generate-key-btn').addEventListener('click', async () => {
+            try {
+                const data = await apiRequest('/api/auth/api-key', 'POST', null, true);
+                document.getElementById('apikey-display').textContent = data.apiKey;
+                document.getElementById('copy-key-btn').classList.remove('hidden');
+                tg.showAlert('API ключ сгенерирован! Сохраните его - он показывается только один раз.');
+            } catch (e) {
+                showError(e.message);
+            }
+        });
+
+        // Копирование ключа
+        document.getElementById('copy-key-btn').addEventListener('click', () => {
+            const key = document.getElementById('apikey-display').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                tg.showAlert('Ключ скопирован!');
+            });
+        });
+
+        // Пополнение (заглушка)
+        document.getElementById('topup-btn').addEventListener('click', () => {
+            tg.showAlert('Пополнение баланса скоро будет доступно!\n\nСвяжитесь с @first_seller для ручного пополнения.');
+        });
+
+        // Регистрация
+        document.getElementById('register-btn').addEventListener('click', async () => {
+            const user = tg.initDataUnsafe?.user;
+
+            if (!user) {
+                tg.showAlert('Откройте приложение через Telegram бота');
+                return;
+            }
+
+            try {
+                const response = await apiRequest('/api/auth/telegram', 'POST', {
+                    initData: tg.initData,
+                    telegramId: user.id,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    username: user.username
+                });
+
+                authToken = response.token;
+                userData = response.user;
+                showMainSection();
+                tg.showAlert('Регистрация успешна! Вам начислен бонус $1');
+            } catch (e) {
+                showError(e.message);
+            }
+        });
+
+        // Запуск
+        authWithTelegram();
+    </script>
+</body>
+</html>

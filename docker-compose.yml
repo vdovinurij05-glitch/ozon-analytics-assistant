@@ -36,8 +36,12 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ozon}:${POSTGRES_PASSWORD:-ozon_secret_123}@postgres:5432/${POSTGRES_DB:-ozon_assistant}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       JWT_SECRET: ${JWT_SECRET}
+      BOT_TOKEN: ${BOT_TOKEN}
       PRICE_MULTIPLIER: ${PRICE_MULTIPLIER:-3}
       WELCOME_BONUS: ${WELCOME_BONUS:-1}
+    volumes:
+      - ./webapp:/app/webapp:ro
+      - ./admin:/app/admin:ro
     ports:
       - "3000:3000"
     healthcheck:
