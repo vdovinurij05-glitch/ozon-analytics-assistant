@@ -261,7 +261,33 @@
                 <p>Создайте аккаунт, чтобы начать</p>
             </div>
 
-            <div class="card">
+            <!-- Форма для браузера -->
+            <div id="browser-register" class="card">
+                <p style="margin-bottom: 16px;">При регистрации вы получите бонус <strong>$1</strong> на счёт!</p>
+                <div style="margin-bottom: 12px;">
+                    <input type="email" id="reg-email" placeholder="Email" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 8px;">
+                    <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <button id="register-email-btn" class="btn btn-primary">Создать аккаунт</button>
+                <p style="text-align: center; margin-top: 12px; font-size: 14px;">
+                    Уже есть аккаунт? <a href="#" id="show-login-btn" style="color: var(--tg-theme-link-color);">Войти</a>
+                </p>
+            </div>
+
+            <!-- Форма входа -->
+            <div id="login-form" class="card hidden">
+                <div style="margin-bottom: 12px;">
+                    <input type="email" id="login-email" placeholder="Email" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 8px;">
+                    <input type="password" id="login-password" placeholder="Пароль" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <button id="login-btn" class="btn btn-primary">Войти</button>
+                <p style="text-align: center; margin-top: 12px; font-size: 14px;">
+                    Нет аккаунта? <a href="#" id="show-register-btn" style="color: var(--tg-theme-link-color);">Создать</a>
+                </p>
+            </div>
+
+            <!-- Кнопка для Telegram -->
+            <div id="telegram-register" class="card hidden">
                 <p style="margin-bottom: 16px;">При регистрации вы получите бонус <strong>$1</strong> на счёт!</p>
                 <button id="register-btn" class="btn btn-primary">Создать аккаунт</button>
             </div>
@@ -499,13 +525,22 @@
             });
         });
 
+        // Показать уведомление (работает и в браузере, и в Telegram)
+        function showNotification(message) {
+            if (isTelegram) {
+                tg.showAlert(message);
+            } else {
+                alert(message);
+            }
+        }
+
         // Генерация ключа
         document.getElementById('generate-key-btn').addEventListener('click', async () => {
             try {
                 const data = await apiRequest('/api/auth/api-key', 'POST', null, true);
                 document.getElementById('apikey-display').textContent = data.apiKey;
                 document.getElementById('copy-key-btn').classList.remove('hidden');
-                tg.showAlert('API ключ сгенерирован! Сохраните его - он показывается только один раз.');
+                showNotification('API ключ сгенерирован! Сохраните его - он показывается только один раз.');
             } catch (e) {
                 showError(e.message);
             }
@@ -515,21 +550,91 @@
         document.getElementById('copy-key-btn').addEventListener('click', () => {
             const key = document.getElementById('apikey-display').textContent;
             navigator.clipboard.writeText(key).then(() => {
-                tg.showAlert('Ключ скопирован!');
+                showNotification('Ключ скопирован!');
             });
         });
 
         // Пополнение (заглушка)
         document.getElementById('topup-btn').addEventListener('click', () => {
-            tg.showAlert('Пополнение баланса скоро будет доступно!\n\nСвяжитесь с @first_seller для ручного пополнения.');
+            showNotification('Пополнение баланса скоро будет доступно!\n\nСвяжитесь с @first_seller для ручного пополнения.');
         });
 
-        // Регистрация
+        // Проверка - в Telegram или в браузере
+        const isTelegram = tg.initDataUnsafe?.user;
+
+        if (isTelegram) {
+            // Показываем Telegram кнопку
+            document.getElementById('browser-register').classList.add('hidden');
+            document.getElementById('telegram-register').classList.remove('hidden');
+        }
+
+        // Переключение форм регистрации/входа
+        document.getElementById('show-login-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('browser-register').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        });
+
+        document.getElementById('show-register-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('browser-register').classList.remove('hidden');
+        });
+
+        // Регистрация через email (браузер)
+        document.getElementById('register-email-btn').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (!email || !password) {
+                showError('Заполните все поля');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Пароль должен быть минимум 6 символов');
+                return;
+            }
+
+            try {
+                const response = await apiRequest('/api/auth/register', 'POST', { email, password });
+                authToken = response.token;
+                userData = response.user;
+                localStorage.setItem('authToken', authToken);
+                showMainSection();
+                alert('Регистрация успешна! Вам начислен бонус $1');
+            } catch (e) {
+                showError(e.message);
+            }
+        });
+
+        // Вход через email (браузер)
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showError('Заполните все поля');
+                return;
+            }
+
+            try {
+                const response = await apiRequest('/api/auth/login', 'POST', { email, password });
+                authToken = response.token;
+                userData = response.user;
+                localStorage.setItem('authToken', authToken);
+                showMainSection();
+            } catch (e) {
+                showError(e.message);
+            }
+        });
+
+        // Регистрация через Telegram
         document.getElementById('register-btn').addEventListener('click', async () => {
             const user = tg.initDataUnsafe?.user;
 
             if (!user) {
-                tg.showAlert('Откройте приложение через Telegram бота');
+                alert('Откройте приложение через Telegram бота');
                 return;
             }
 
@@ -551,8 +656,33 @@
             }
         });
 
+        // Проверка сохранённого токена
+        async function checkSavedToken() {
+            const savedToken = localStorage.getItem('authToken');
+            if (savedToken) {
+                authToken = savedToken;
+                try {
+                    const response = await apiRequest('/api/auth/me', 'GET', null, true);
+                    userData = response.user;
+                    showMainSection();
+                    return true;
+                } catch (e) {
+                    localStorage.removeItem('authToken');
+                }
+            }
+            return false;
+        }
+
         // Запуск
-        authWithTelegram();
+        async function init() {
+            // Сначала проверяем сохранённый токен
+            if (await checkSavedToken()) return;
+
+            // Затем пробуем Telegram авторизацию
+            authWithTelegram();
+        }
+
+        init();
     </script>
 </body>
 </html>
