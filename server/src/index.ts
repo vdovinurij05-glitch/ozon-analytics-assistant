@@ -23,11 +23,16 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json({ limit: '1mb' }));
 
-// CORS - разрешаем запросы отовсюду для Mini App
+// CORS - разрешаем запросы отовсюду (включая Chrome extensions)
 app.use(cors({
   origin: true,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Requested-With']
 }));
+
+// Явно обрабатываем OPTIONS для preflight запросов
+app.options('*', cors());
 
 // Rate limiting
 const limiter = rateLimit({
