@@ -66,8 +66,8 @@ export interface ChatResponse {
   usage: TokenUsage;
 }
 
-// Цены Claude (себестоимость за 1M токенов)
+// Цены Claude Opus (себестоимость за 1M токенов)
 export const CLAUDE_PRICES = {
-  INPUT_PER_MILLION: 3,    // $3 за 1M input токенов
-  OUTPUT_PER_MILLION: 15,  // $15 за 1M output токенов
+  INPUT_PER_MILLION: 15,   // $15 за 1M input токенов (Opus)
+  OUTPUT_PER_MILLION: 75,  // $75 за 1M output токенов (Opus)
 };
